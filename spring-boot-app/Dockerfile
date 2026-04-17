@@ -1,13 +1,21 @@
-# You can change this base image to anything else
-# But make sure to use the correct version of Java
-FROM adoptopenjdk/openjdk11:alpine-jre
+# Base image with Java 25
+FROM openjdk:25-jdk
 
-# Simply the artifact path
-ARG artifact=target/spring-boot-web.jar
+# Install required tools: Maven, Docker CLI, git
+RUN apt-get update && apt-get install -y \
+    maven \
+    git \
+    curl \
+    unzip \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /opt/app
+# Set environment variables
+ENV JAVA_HOME=/usr/lib/jvm/java-25-openjdk
+ENV PATH=$JAVA_HOME/bin:$PATH
 
-COPY ${artifact} app.jar
+# Default working directory
+WORKDIR /workspace
 
-# This should not be changed
-ENTRYPOINT ["java","-jar","app.jar"]
+# Verify installations
+RUN java -version && mvn -version && docker --version
